@@ -27,6 +27,8 @@ public class SlaveConnection extends Thread {
     private InetAddress address;
     public String ipServer;
     public String slaveId;
+    public String resultados;
+    public String libro;
 
     byte[] buffer = new byte[60000];
 
@@ -50,6 +52,8 @@ public class SlaveConnection extends Thread {
         this.slaveId = "-1";
         this.start();
         this.enviarMensaje("msg", "GET_PORT", "GET_PORT");
+        this.resultados= "";
+        this.libro= "";
     }//SlavaeConnection
 
     public static SlaveConnection getInstance() throws UnknownHostException, SocketException, IOException {
@@ -66,6 +70,7 @@ public class SlaveConnection extends Thread {
             DatagramPacket mensaje = new DatagramPacket(buffer, buffer.length, this.address, Variables.MASTERPORTNUMBER);
             ArchivoData archivoData;
             MetadataData metadataData;
+          
             while (true) {
 
                 this.socket.receive(mensaje);
@@ -73,7 +78,7 @@ public class SlaveConnection extends Thread {
                 Element element = Conversiones.stringToXML(msg.trim());
                 String accion = element.getChild("accion").getValue();
                 System.out.println("Mensaje: " + accion);
-
+             
                 switch (accion) {
                     case "SET_PORT":
                         Variables.SLAVEPORTNUMBER = Integer.parseInt(element.getChild("msg").getValue());
@@ -123,6 +128,18 @@ public class SlaveConnection extends Thread {
                         ArrayList<Archivo> partes = archivoData.obtenerPartes(element);
                         this.enviarParte(partes);
                         break;
+                    case "RESULTADO":
+                        System.out.println("RESPUESTA");
+                        String resultado = element.getChild("resultado").getValue();
+                        System.out.println("Mensaje2: " + resultado);
+                        this.resultados= resultado;
+                        break;
+                     case "LIBRO":
+                        System.out.println("ParteF");
+                        String resultado2 = element.getChild("libro").getValue();
+                        System.out.println("Mensaje2: " + resultado2);
+                        this.libro= resultado2;
+                        break;
                     default:
                         break;
 
@@ -137,6 +154,23 @@ public class SlaveConnection extends Thread {
             Logger.getLogger(SlaveConnection.class.getName()).log(Level.SEVERE, null, ex);
         }//try-catch
     }//run
+      
+    public String obtenerResultados(){
+     return this.resultados;    
+    }
+    
+    public String obtenerDatos(){
+     return this.libro;    
+    }
+    
+    public void obtenerArchivo(String nombreArchivo) throws IOException, InterruptedException, JDOMException {
+         this.enviarMensaje("obtener", nombreArchivo, "OBTENER");
+    }//buscarArchivo
+
+        
+    public void buscarArchivo(String nombreArchivo) throws IOException, InterruptedException, JDOMException {
+         this.enviarMensaje("buscar", nombreArchivo, "BUSCAR");
+    }//buscarArchivo
 
     public void enviarMensaje(String msgName, String msg, String accion) throws IOException {
 

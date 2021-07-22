@@ -7,7 +7,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -112,5 +117,6 @@ public class ArchivoData {
         }
         return partes;
     }//obtenerPartes
+   
 
 }//end class
