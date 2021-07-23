@@ -16,9 +16,8 @@ Pasos:
 2. Al tener las carpetas de ControllerNode, Node y saSEARCH, se procede a abrirlas desde el IDE
 3. Una vez abiertas, se ejecuta primero el proyecto de ControllerNode y luego el proyecto Node(Este se ejecuta según la cantidad de nodos
 que se desea poseer), por último se ejecuta el saSEARCH.
-4. En la ventana de ejecución del ControllerNode(La que posee inputs y dos botones), se coloca el nombre del archivo que se desea enviar a los nodos
-y el formato sin el punto(ej: pdf, txt), luego se presiona el botón de enviar.
-5. Desde el saSEARCH se puede buscar el archivo que anteriormente fue enviado y así recuperarlo.
+4. En la ventana de ejecución del ControllerNode(la ventana que posee un formulario), rellena el fomulario con lo datos solicitados luego se presiona el botón de enviar.
+6. Desde el saSEARCH se puede buscar el archivo que anteriormente fue enviado y así recuperarlo.
 
 Simulación de fallo y ver el archivo recuperado:
 
