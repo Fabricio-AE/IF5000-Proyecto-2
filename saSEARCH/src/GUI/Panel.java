@@ -1,6 +1,5 @@
 package GUI;
 
-import Entity.Metadata;
 import saSearch.SaSEARCHConnection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -18,7 +18,8 @@ import org.jdom.JDOMException;
 public class Panel extends JPanel implements ActionListener {
 
     private JButton jbtnObtenerArchivo, jbtnBuscarArchivo, jbtnSeleccionar;
-    private JTextField jtfNombreArchivo, jtfFormato;
+    private JLabel jlblNombreArchivo;
+    private JTextField jtfNombreArchivo;
     private JComboBox jcbLibros;
     private JTextArea jtaLibro;
 
@@ -26,17 +27,17 @@ public class Panel extends JPanel implements ActionListener {
         this.setSize(350,500);
         
         this.setLayout(null);
+        
+        this.jlblNombreArchivo = new JLabel("Nombre del libro");
+        this.jlblNombreArchivo.setBounds(this.getWidth()/2-50, 0, 100, 20);
+        this.add(this.jlblNombreArchivo);
 
-        this.jtfNombreArchivo = new JTextField("Nombre");
-        this.jtfNombreArchivo.setBounds(this.getWidth()/2-50, 10, 100, 30);
+        this.jtfNombreArchivo = new JTextField();
+        this.jtfNombreArchivo.setBounds(this.getWidth()/2-50, 30, 100, 30);
         this.add(this.jtfNombreArchivo);
 
-        this.jtfFormato = new JTextField("Formato");
-        this.jtfFormato.setBounds(this.getWidth()/2-50, 50, 100, 30);
-        this.add(this.jtfFormato);
-
         this.jbtnBuscarArchivo = new JButton("Buscar Archivo");
-        this.jbtnBuscarArchivo.setBounds(this.getWidth()/2-90, 100, 180, 30);
+        this.jbtnBuscarArchivo.setBounds(this.getWidth()/2-65, 70, 130, 30);
         this.jbtnBuscarArchivo.addActionListener(this);
         this.add(this.jbtnBuscarArchivo);
 
@@ -83,11 +84,12 @@ public class Panel extends JPanel implements ActionListener {
                 VistaPDF v = new VistaPDF(ruta);
 
             } else if (this.jbtnBuscarArchivo == ae.getSource()) {
+                this.jcbLibros.removeAllItems();
                 slave.buscarArchivo(this.jtfNombreArchivo.getText());
                 Thread.sleep(1000);
                 String cargar = slave.obtenerResultados();
 
-                String[] parts = cargar.split(" ");
+                String[] parts = cargar.split("-");
                 for (int i = 0; i < parts.length; i++) {
                     this.jcbLibros.addItem(parts[i]);
                 }// for
