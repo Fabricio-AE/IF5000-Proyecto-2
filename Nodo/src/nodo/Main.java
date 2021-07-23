@@ -24,8 +24,8 @@ public class Main {
 
             JPanel panel = new JPanel(null);
             panel.setSize(200, 200);
-            JLabel jlblIP = new JLabel(Variables.IPSERVER);
-            jlblIP.setBounds(0, 0, 200, 200);
+            JLabel jlblIP = new JLabel("Nodo: "+Variables.DISKID);
+            jlblIP.setBounds(70, 0, 200, 200);
             panel.add(jlblIP);
 
             frame.add(panel);
