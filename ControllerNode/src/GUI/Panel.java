@@ -9,32 +9,46 @@ import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.jdom.JDOMException;
 
 public class Panel extends JPanel implements ActionListener{
-    private JButton jbtnObtenerArchivo, jbtnEnviarArchivo;
-    private JTextField jtfNombreArchivo, jtfFormato;
+    private JButton jbtnEnviarArchivo;
+    private JTextField jtfNombreArchivo, jtfAutor, jtfFecha;
+    private JLabel jlblNombre, jlblAutor, jlblFecha;
 
     public Panel() {
         this.setLayout(null);
         
+        this.jlblNombre = new JLabel("Nombre");
+        this.jlblNombre.setBounds(50, 0, 100, 20);
+        this.add(this.jlblNombre);
+        
         this.jtfNombreArchivo = new JTextField();
-        this.jtfNombreArchivo.setBounds(50, 10, 100, 30);
+        this.jtfNombreArchivo.setBounds(50, 20, 100, 30);
         this.add(this.jtfNombreArchivo);
         
-        this.jtfFormato = new JTextField("Formato");
-        this.jtfFormato.setBounds(50, 35, 100, 30);
-        this.add(this.jtfFormato);
+        this.jlblAutor = new JLabel("Autor");
+        this.jlblAutor.setBounds(50, 60, 100, 20);
+        this.add(this.jlblAutor);
         
-        this.jbtnObtenerArchivo = new JButton("Obtener Archivo");
-        this.jbtnObtenerArchivo.setBounds(35,100,130,30);
-        this.jbtnObtenerArchivo.addActionListener(this);
-        this.add(this.jbtnObtenerArchivo);
+        this.jtfAutor = new JTextField();
+        this.jtfAutor.setBounds(50, 80, 100, 30);
+        this.add(this.jtfAutor);
+        
+        this.jlblFecha = new JLabel("Fecha");
+        this.jlblFecha.setBounds(50, 120, 100, 20);
+        this.add(this.jlblFecha);
+        
+        this.jtfFecha = new JTextField();
+        this.jtfFecha.setBounds(50, 140, 100, 30);
+        this.add(this.jtfFecha);
+        
         
         this.jbtnEnviarArchivo = new JButton("Eviar Archivo");
-        this.jbtnEnviarArchivo.setBounds(35,140,130,30);
+        this.jbtnEnviarArchivo.setBounds(35,180,130,30);
         this.jbtnEnviarArchivo.addActionListener(this);
         this.add(this.jbtnEnviarArchivo);
     }
@@ -43,14 +57,10 @@ public class Panel extends JPanel implements ActionListener{
     public void actionPerformed(ActionEvent ae) {
         try {
             Master master = Master.getInstance();
-            if(this.jbtnObtenerArchivo == ae.getSource()){
-                master.obtenerArchivo(this.jtfNombreArchivo.getText());
-            }else{
+            
                 Metadata metadata = new Metadata(this.jtfNombreArchivo.getText()
-                        , "Fabricio", "02/05/2021", this.jtfFormato.getText());
+                        , this.jtfAutor.getText(), this.jtfFecha.getText(), "pdf");
                 master.enviarArchivo(metadata);
-          
-            }
             
        
         } catch (SocketException ex) {

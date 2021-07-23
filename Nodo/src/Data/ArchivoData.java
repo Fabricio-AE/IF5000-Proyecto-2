@@ -7,12 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -27,6 +22,11 @@ public class ArchivoData {
     private String path;
     private String nombre;
 
+    /**
+     * Constructor inicial que crea el directorio del nodo
+     * @throws IOException null
+     * @throws JDOMException null
+     */
     public ArchivoData() throws IOException, JDOMException {
         File directorio = new File("../" + Variables.PATH + Variables.DISKID);
         if (!directorio.exists()) {
@@ -34,6 +34,12 @@ public class ArchivoData {
         }
     }//archivoData
 
+    /**
+     * Contructor para obtener un archivo en especificio
+     * @param nombre Nombre del archivo
+     * @throws IOException null
+     * @throws JDOMException null
+     */
     public ArchivoData(String nombre) throws IOException, JDOMException {
         File directorio = new File("../" + Variables.PATH + Variables.DISKID);
         if (!directorio.exists()) {
@@ -59,6 +65,12 @@ public class ArchivoData {
         } // if-else
 
     }//constructor
+    
+    /**
+     * Escribe la parte del archivo que fue recibida
+     * @param archivo Archivo que se deasea escribir
+     * @throws IOException null
+     */
 
     public void escribirEnArchivo(Archivo archivo) throws IOException {
         Element eParte = new Element("Parte");
@@ -74,11 +86,21 @@ public class ArchivoData {
 
     }//escribirEnArchivo
 
+    /**
+     * Guarda la información del archivo XML que está utilizando la clase
+     * @throws FileNotFoundException null
+     * @throws IOException null
+     */
     public void guardarXML() throws FileNotFoundException, IOException {
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.output(this.document, new PrintWriter(this.path));
     }// guardarXML
 
+    /**
+     * Obtiene la información del archivo
+     * @return Lista con la información del archivo
+     * @throws IOException null
+     */
     public ArrayList<Archivo> obtenerArchivo() throws IOException {
 
         ArrayList<Archivo> archivo = new ArrayList<>();
@@ -96,10 +118,12 @@ public class ArchivoData {
         return archivo;
     }//obtenerArchivo
 
-    public void obtenerMetadata(SlaveConnection slave, String nombreArchivo) {
-
-    }//obtenerMetadata
-
+    /**
+     * Obtiene partes especificas de un archivo, esto funciona para la paridad
+     * @param element Element enviado desde el master con todos los indices solicitados
+     * @return Partes solicitadas por el master
+     * @throws IOException null
+     */
     public ArrayList<Archivo> obtenerPartes(Element element) throws IOException {
         ArrayList<Integer> indices = new ArrayList<>();
         List elementList = element.getChild("Archivo").getChildren("Indice");
@@ -117,6 +141,5 @@ public class ArchivoData {
         }
         return partes;
     }//obtenerPartes
-   
 
 }//end class

@@ -1,5 +1,11 @@
 package Entity;
 
+
+/**
+ * Este modelo contiene los datos necesario para que el archivo sea contruido
+ * @author Fabricio
+ */
+
 public class Archivo {
     private String nombre, parte, encoded;
 

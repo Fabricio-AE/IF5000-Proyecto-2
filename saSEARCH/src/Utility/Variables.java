@@ -3,10 +3,8 @@ package Utility;
 public class Variables {
     
     public static String IPSERVER = "";
-    public static int SLAVEPORTNUMBER = 5024;
-    public static int MASTERPORTNUMBER = 5025;
-    public static String PATH = "DISK-";
-    public static int DISKID = 0;
+    public static int CLIENTPORTNUMBER = 5023;
+    public static int MASTERPORTNUMBER = 5022;
     
     
 }//end class

@@ -2,6 +2,11 @@
 package Entity;
 
 
+/**
+ * Modelo que representa la metadata de un archivo
+ * @author Fabricio
+ */
+
 public class Metadata {
     private String nombre, autor, fecha, formato;
 
