@@ -135,8 +135,8 @@ public class DiskData {
                     Integer.parseInt(elementoActual.getChild("IndiceParidad").getValue()),
                     Integer.parseInt(elementoActual.getChild("NumeroDePartes").getValue())
                     );
-           if (metadataActual.getNombre().toLowerCase().startsWith(nombreArchivo.toLowerCase())) {
-               salida+=metadataActual.getNombre()+" ";
+           if (metadataActual.getNombre().contains(nombreArchivo)) {
+               salida+=metadataActual.getNombre()+"-";
            }// if
         }//for-each
         
