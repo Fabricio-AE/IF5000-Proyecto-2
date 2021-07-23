@@ -40,17 +40,35 @@ public class MetadataData {
 
     }//constructor
     
+    /**
+     * Obtiene la instancia de la metadata
+     * @return Instancia de la clase singleton
+     * @throws JDOMException null
+     * @throws IOException null
+     */
+    
     public static MetadataData getInstance() throws JDOMException, IOException{
         if(INSTANCE == null)
             INSTANCE = new MetadataData();
         
         return INSTANCE;
     }//getInstance
-
+    
+    /**
+     * Guarda la información del archivo XML que está utilizando la clase
+     * @throws FileNotFoundException null
+     * @throws IOException null
+     */
     public void guardarXML() throws FileNotFoundException, IOException {
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.output(this.document, new PrintWriter(this.path));
     }// guardarXML
+    
+    /**
+     * Escribe en el archivo de metadata
+     * @param metadata Metadata que se desea escribir
+     * @throws IOException null
+     */
     
     public void escribirEnMetadata(Metadata metadata) throws IOException{
         Element eArchivo = new Element("Archivo");
@@ -74,6 +92,11 @@ public class MetadataData {
         this.guardarXML();
     }//escribirEnMetadata
     
+    /**
+     * Obtiene la información del archivo metadata
+     * @return Lista con toda la metadata
+     */
+    
     public ArrayList<Metadata> obtenerMetadata(){
         ArrayList<Metadata> metadata = new ArrayList<>();
         List elementList = this.root.getChildren();
@@ -91,6 +114,12 @@ public class MetadataData {
         return metadata;
     }//obtenerMetadata
     
+    /**
+     * Busca la metadata especifica
+     * @param nombre Nombre del archivo
+     * @param slave Clase del socket para enviar la información
+     * @throws IOException null
+     */
     public void buscarMetadata(String nombre, SlaveConnection slave) throws IOException{
         List elementList = this.root.getChildren();
 

@@ -51,7 +51,6 @@ public class Master extends Thread {
     @Override
     public void run() {
         DatagramPacket mensaje = new DatagramPacket(buffer, buffer.length);
-        boolean entrar = true;
         try {
             DiskData diskData = DiskData.getInstance();
             while (true) {
@@ -64,11 +63,13 @@ public class Master extends Thread {
 
                 switch (accion) {
                     case "GET_PORT":
-                        if(!this.ports.isEmpty())
+                        if (!this.ports.isEmpty()) {
                             this.enviarPuerto((this.ports.get(this.ports.size() - 1) + 1) + "", "SET_PORT", mensaje.getPort());
-                        else
+                        } else {
                             this.enviarPuerto((Variables.PORTNUMBER + 1) + "", "SET_PORT", mensaje.getPort());
+                        }
                         break;
+
                     case "READY":
                         this.ports.add(mensaje.getPort());
                         this.enviarMensaje("nonmsg", "nonmsg", "READY", mensaje.getPort());
@@ -96,26 +97,9 @@ public class Master extends Thread {
                         );
                         diskData = DiskData.getInstance();
                         diskData.setMetadata(metadata);
-                        
+
                         break;
-                    case "BUSCAR":
-                        System.out.println("Buscar");
-                        String resultado = element.getChild("buscar").getValue();
-                        System.out.println("Mensaje2: " + resultado);
-                        String salida=  diskData.obtenerPosiblesLibros(resultado);
-        
-                        this.enviarMensaje("resultado", salida, "RESULTADO", mensaje.getPort());
-                         
-                        break;
-                    case "OBTENER":
-                        System.out.println("Obtener");
-                        String resultado2 = element.getChild("obtener").getValue();
-                        System.out.println("Mensaje2: " + resultado2);
-                        String salida2=  diskData.obtenerDatosLibro(resultado2);
-        
-                        this.enviarMensaje("libro", salida2, "LIBRO", mensaje.getPort());
-                
-                        break;
+                    
                     default:
                         break;
                 }//switch
@@ -123,9 +107,11 @@ public class Master extends Thread {
             }//while
         } catch (IOException ex) {
             ex.printStackTrace();
-        } catch (JDOMException ex) {
+        }catch (JDOMException ex) {
             ex.printStackTrace();
-        }//try-catch
+        }
+        //try-catch
+        //try-catch
     }//run
 
     public void enviarPuerto(String msg, String accion, int portnumber) throws IOException {
@@ -135,7 +121,7 @@ public class Master extends Thread {
         eMsg.addContent(msg);
 
         Element eDisk = new Element("disk");
-        eDisk.addContent((this.ports.size()+1) + "");
+        eDisk.addContent((this.ports.size() + 1) + "");
 
         ePacket.addContent(eMsg);
         ePacket.addContent(eDisk);
@@ -161,33 +147,34 @@ public class Master extends Thread {
     }//enviarMensaje
 
     public void enviarArchivo(Metadata metadata) throws IOException, InterruptedException, JDOMException {
-        File documento = new File("../"+metadata.getNombre()+"."+metadata.getFormato());
+        File documento = new File("../" + metadata.getNombre() + "." + metadata.getFormato());
 
         //Se lee el archivo
         FileInputStream fileInputStreamReader = new FileInputStream(documento);
-        
+
         //Se obtiene el tamaño y se codifica
         byte[] bytes = new byte[(int) documento.length()];
         fileInputStreamReader.read(bytes);
         String encoded = Base64.getEncoder().encodeToString(bytes);
-        
+
         //Tamaño de las partes
-        int partsLength = encoded.length()/this.ports.size();
-        
+        int partsLength = encoded.length() / this.ports.size();
+
         //Si sobrepasa el tamaño del buffer entonces se sigue diviendo hasta que quepa
-        while(partsLength > 59000)
+        while (partsLength > 59000) {
             partsLength = partsLength / this.ports.size();
-        
+        }
+
         //Número de partes en que se va a divir el archivo codificado
         int numParts = (int) Math.ceil((encoded.length() * 1d) / partsLength);
-        
+
         //Se pasa el indice del nodo que va a tener la paridad para tenerlo
         //en los datos del controller
         DiskData diskData = DiskData.getInstance();
         metadata.setIndiceParidad(this.indiceParidad);
         metadata.setNumeroDePartes(numParts);
         diskData.escribirEnMetadata(metadata);
-        
+
         //Matris que va a contener el las partes separadas
         char[][] partes = new char[numParts][partsLength + 1];
 
@@ -195,7 +182,7 @@ public class Master extends Thread {
         for (int i = 0; i < numParts - 1; i++) {
             encoded.getChars(partsLength * i, partsLength * (i + 1), partes[i], 0);
         }//for
-        
+
         //Para evitar que falte información, la última parte empieza desde
         //el fin de la anterior y termina en el largo del archivo completo
         encoded.getChars(partsLength * (numParts - 1), encoded.length(), partes[numParts - 1], 0);
@@ -220,20 +207,21 @@ public class Master extends Thread {
 
             buffer = Conversiones.anadirAccion(ePacket, "PARTE").getBytes();
             DatagramPacket mensaje;
-            if(i%this.ports.size() == this.indiceParidad)
-                mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get((i+1)%this.ports.size()));
-            else
-                mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get(i%this.ports.size()));
+            if (i % this.ports.size() == this.indiceParidad) {
+                mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get((i + 1) % this.ports.size()));
+            } else {
+                mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get(i % this.ports.size()));
+            }
             this.socket.send(mensaje);
-            
+
             mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get(this.indiceParidad));
             this.socket.send(mensaje);
-            
+
             Thread.sleep(100);
         }//for i
-        
-        this.indiceParidad = (this.indiceParidad+1)%this.ports.size();
-        
+
+        this.indiceParidad = (this.indiceParidad + 1) % this.ports.size();
+
         //Se envia la metadata a los nodos
         for (int i = 0; i < this.ports.size(); i++) {
             Element ePacket = new Element("packet");
@@ -266,56 +254,53 @@ public class Master extends Thread {
         DiskData diskData = DiskData.getInstance();
         diskData.resetArchivo();
         diskData.setMetadata(null);
-        
+
         Metadata meta = diskData.obtenerMetadata(nombreArchivo);
-        
-        
+
         for (int i = 0; i < this.ports.size(); i++) {
-            if(i!=meta.getIndiceParidad())
+            if (i != meta.getIndiceParidad()) {
                 this.enviarMensaje("Nombre", nombreArchivo, "OBTENER_ARCHIVO", this.ports.get(i));
+            }
         }//for i
-        
-        
+
         this.enviarMensaje("Nombre", nombreArchivo, "OBTENER_METADATA", this.ports.get(0));
-        
+
         int espera = 0;//si la espera alcanza 10 entonces se rompe el ciclo
-        while(diskData.getArchivo().size() != meta.getNumeroDePartes() && espera <10){
+        while (diskData.getArchivo().size() != meta.getNumeroDePartes() && espera < 10) {
             Thread.sleep(1000);
             espera++;
         }
-        
-        if(espera == 10){
+
+        if (espera == 10) {
             ArrayList<Integer> indices = diskData.obtenerFaltantes(meta);
             this.obtenerPartes(meta, indices);
         }
-        
+
         espera = 0;//si la espera alcanza 10 entonces se rompe el ciclo
-        while(diskData.getArchivo().size() != meta.getNumeroDePartes() && espera <10){
+        while (diskData.getArchivo().size() != meta.getNumeroDePartes() && espera < 10) {
             Thread.sleep(1000);
             espera++;
         }
-        
+
         diskData.construirArchivo();
     }//obtenerArchivo
-    
 
-    public void obtenerPartes(Metadata meta, ArrayList<Integer> indices) throws IOException{
+    public void obtenerPartes(Metadata meta, ArrayList<Integer> indices) throws IOException {
         Element ePacket = new Element("packet");
 
         Element eMsg = new Element("Archivo");
         eMsg.setAttribute("Nombre", meta.getNombre());
-        
-        
+
         for (int i = 0; i < indices.size(); i++) {
             Element eIndice = new Element("Indice");
-            eIndice.addContent(indices.get(i)+"");
-            
+            eIndice.addContent(indices.get(i) + "");
+
             eMsg.addContent(eIndice);
         }
         ePacket.addContent(eMsg);
 
         buffer = Conversiones.anadirAccion(ePacket, "OBTENER_PARTES").getBytes();
-        System.out.println("Paridad en el disco: "+meta.getIndiceParidad());
+        System.out.println("Paridad en el disco: " + meta.getIndiceParidad());
         DatagramPacket mensaje = new DatagramPacket(buffer, buffer.length, this.address, this.ports.get(meta.getIndiceParidad()));
         this.socket.send(mensaje);
     }//obtenerPartes

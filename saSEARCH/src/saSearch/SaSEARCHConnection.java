@@ -1,8 +1,5 @@
 package saSearch;
 
-import Data.ArchivoData;
-import Data.MetadataData;
-import Entity.Archivo;
 import Entity.Metadata;
 import Utility.Conversiones;
 import Utility.Variables;
@@ -13,10 +10,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
@@ -48,10 +42,10 @@ public class SaSEARCHConnection extends Thread {
             i++;
         }//while
         this.address = InetAddress.getByName(Variables.IPSERVER);
-        this.socket = new DatagramSocket(Variables.SLAVEPORTNUMBER);
+        this.socket = new DatagramSocket(Variables.CLIENTPORTNUMBER);
         this.slaveId = "-1";
         this.start();
-        this.enviarMensaje("msg", "GET_PORT", "GET_PORT");
+        //this.enviarMensaje("msg", "GET_PORT_CLIENT", "GET_PORT_CLIENT");
         this.resultados= "";
         this.libro= "";
     }//SlavaeConnection
@@ -68,8 +62,6 @@ public class SaSEARCHConnection extends Thread {
     public void run() {
         try {
             DatagramPacket mensaje = new DatagramPacket(buffer, buffer.length, this.address, Variables.MASTERPORTNUMBER);
-            ArchivoData archivoData;
-            MetadataData metadataData;
           
             while (true) {
 
@@ -81,16 +73,12 @@ public class SaSEARCHConnection extends Thread {
              
                 switch (accion) {
                     case "SET_PORT":
-                        Variables.SLAVEPORTNUMBER = Integer.parseInt(element.getChild("msg").getValue());
+                        Variables.CLIENTPORTNUMBER = Integer.parseInt(element.getChild("msg").getValue());
                         this.socket.close();
-                        this.socket = new DatagramSocket(Variables.SLAVEPORTNUMBER);
-                        Variables.DISKID = Integer.parseInt(element.getChild("disk").getValue());
-                        this.enviarMensaje("nonmsg", "nonmsg", "READY");
+                        this.socket = new DatagramSocket(Variables.CLIENTPORTNUMBER);
                         break;
                     case "READY":
-                        System.out.println("Puerto asignado: " + Variables.SLAVEPORTNUMBER
-                                + "\nDisco asignado: " + Variables.DISKID);
-                        archivoData = new ArchivoData();
+                        System.out.println("Puerto asignado: " + Variables.CLIENTPORTNUMBER);
                         break;
                     case "RESULTADO":
                         System.out.println("RESPUESTA");
@@ -116,6 +104,10 @@ public class SaSEARCHConnection extends Thread {
             ex.printStackTrace();
         }//try-catch
     }//run
+    
+    public void cargarArchivo(String nombre) throws IOException{
+        this.enviarMensaje("archivo", nombre, "CARGAR");
+    }
       
     public String obtenerResultados(){
      return this.resultados;    
@@ -179,41 +171,5 @@ public class SaSEARCHConnection extends Thread {
             );
             this.socket.send(mensaje);
     }//enviarMetadata
-
-    public void enviarParte(ArrayList<Archivo> archivo) throws IOException, InterruptedException {
-        for (int i = 0; i < archivo.size(); i++) {
-            System.out.println("Parte id: "+ archivo.get(i).getParte());
-            Element ePacket = new Element("Packet");
-
-            Element eDiskId = new Element("DiskId");
-            eDiskId.addContent(Variables.DISKID + "");
-
-            Element ePartId = new Element("ParteId");
-            ePartId.addContent(archivo.get(i).getParte() + "");
-
-            Element eEncoded = new Element("Encoded");
-            eEncoded.addContent(archivo.get(i).getEncoded());
-
-            Element eNombre = new Element("Nombre");
-            eNombre.addContent(archivo.get(i).getNombre());
-
-            ePacket.addContent(eDiskId);
-            ePacket.addContent(ePartId);
-            ePacket.addContent(eEncoded);
-            ePacket.addContent(eNombre);
-
-            buffer = Conversiones.anadirAccion(ePacket, "PARTE").getBytes();
-
-            DatagramPacket mensaje = new DatagramPacket(
-                    buffer,
-                    buffer.length,
-                    this.address,
-                    Variables.MASTERPORTNUMBER
-            );
-            this.socket.send(mensaje);
-            Thread.sleep(1000);
-        }//for
-        
-    }//enviarParte
 
 }//end class

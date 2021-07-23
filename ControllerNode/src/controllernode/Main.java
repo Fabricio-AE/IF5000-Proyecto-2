@@ -2,6 +2,7 @@ package controllernode;
 
 import GUI.Panel;
 import Master.Master;
+import Server.Server;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -13,9 +14,10 @@ public class Main {
     public static void main(String[] args) throws JDOMException {     
         try {
             Master master = Master.getInstance();
+            Server server = Server.getInstance();
             
             JFrame frame = new JFrame();
-            frame.setSize(200,200);
+            frame.setSize(200,250);
             frame.setLocationRelativeTo(null);
             
             Panel panel = new Panel();
